@@ -59,7 +59,7 @@ const Card: React.FC<CardProps> = ({
   // Internal Scrolling: Only active when card is at Z=0
   const contentY = useTransform(
     progress,
-    [start + 0.02, end - 0.02],
+    [start + 0.05, end - 0.05],
     [0, -scrollableDistance]
   );
 

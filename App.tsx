@@ -93,7 +93,7 @@ function App() {
               title="About Me"
               description="The Human behind the code"
               progress={smoothProgress}
-              range={[0, 0.08]}
+              range={[0, 0.2]}
             >
               <About />
             </Card>
@@ -103,7 +103,7 @@ function App() {
               title="Technical Skills"
               description="My Development Stack"
               progress={smoothProgress}
-              range={[0.15, 0.4]}
+              range={[0.25, 0.45]}
             >
               <Skills />
             </Card>
@@ -113,7 +113,7 @@ function App() {
               title="Experience"
               description="Professional Journey"
               progress={smoothProgress}
-              range={[0.45, 0.7]}
+              range={[0.5, 0.7]}
             >
               <Experience />
             </Card>
