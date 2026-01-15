@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { PERSONAL_INFO } from '../constants';
 import { Figma, Smartphone, Globe, ChevronDown } from 'lucide-react';
+import myProfilePhoto from '../image.JPG';
 
 // Custom Linux Outline Icon to match Lucide style
 const LinuxIcon = ({ className }: { className?: string }) => (
@@ -66,7 +67,7 @@ const Hero = () => {
   };
 
   // URL of the provided photo (Assuming the environment uses the uploaded file)
-  const PROFILE_PHOTO = "../image.JPG"; // You can replace this with your actual hosted link
+  const PROFILE_PHOTO = myProfilePhoto; // You can replace this with your actual hosted link
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-[#050810]">
