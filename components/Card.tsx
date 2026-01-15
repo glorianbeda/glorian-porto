@@ -19,6 +19,7 @@ const Card: React.FC<CardProps> = ({
   range
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const [scrollableDistance, setScrollableDistance] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -67,11 +68,17 @@ const Card: React.FC<CardProps> = ({
 
   useLayoutEffect(() => {
     const calculateScroll = () => {
-      if (contentRef.current) {
+      if (contentRef.current && viewportRef.current) {
         const contentHeight = contentRef.current.offsetHeight;
-        const visibleHeight = window.innerHeight * 0.65;
+        const viewportHeight = viewportRef.current.clientHeight;
+        const computedStyle = window.getComputedStyle(viewportRef.current);
+        const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
+
+        // visibleHeight is the available vertical space for content
+        const visibleHeight = viewportHeight - paddingTop;
+
         let distance = contentHeight > visibleHeight ? contentHeight - visibleHeight : 0;
-        if (distance > 0) distance += 100;
+        if (distance > 0) distance += 100; // Add breathing room
         setScrollableDistance(distance);
       }
     };
@@ -88,20 +95,25 @@ const Card: React.FC<CardProps> = ({
     };
   }, [children]);
 
+  // Dynamic pointer events based on progress
+  const pointerEventsTransform = useTransform(progress, p => (p >= start && p <= end ? 'auto' : 'none'));
+
   return (
     <motion.div
+
       style={{
-        z,
-        opacity,
-        scale,
-        rotateX,
+        z: z,
+        opacity: opacity,
+        scale: scale,
+        rotateX: rotateX,
         zIndex: i + 10,
         transformStyle: 'preserve-3d',
-        pointerEvents: useTransform(progress, p => (p >= start && p <= end ? 'auto' : 'none')),
+        backfaceVisibility: 'hidden',
+        pointerEvents: pointerEventsTransform,
       }}
-      className="absolute inset-0 flex items-center justify-center p-4 md:p-12 will-change-transform"
+      className="absolute inset-0 w-full h-auto flex items-center justify-center p-4 md:p-12 will-change-transform"
     >
-      <div className="relative w-full max-w-5xl h-[75vh] bg-white/95 dark:bg-slate-900/95 backdrop-blur-none rounded-[2rem] md:rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+      <div className="relative w-full max-w-5xl h-full md:h-[75vh] bg-white/95 dark:bg-slate-900/95 backdrop-blur-none rounded-[2rem] md:rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
 
         {/* Glowing Edge */}
         <div className="absolute inset-0 rounded-[2rem] md:rounded-[3rem] border border-white/20 dark:border-primary-500/20 pointer-events-none z-40" />
@@ -130,9 +142,9 @@ const Card: React.FC<CardProps> = ({
         </div>
 
         {/* Content Portal */}
-        <div className="h-full pt-24 md:pt-28 overflow-y-auto md:overflow-hidden relative">
+        <div ref={viewportRef} className="h-full pt-24 md:pt-28 overflow-hidden relative">
           <motion.div
-            style={{ y: isMobile ? 0 : contentY }}
+            style={{ y: contentY }}
             className="px-6 md:px-16 pb-64"
           >
             <div ref={contentRef} className="will-change-transform">
@@ -148,7 +160,7 @@ const Card: React.FC<CardProps> = ({
       {/* Background shadow for depth */}
       <motion.div
         style={{ opacity: shadowOpacity }}
-        className="absolute -inset-10 bg-black/40 blur-[100px] -z-10 rounded-full scale-75"
+        className="absolute -inset-10 bg-black/40 blur-[60px] -z-10 rounded-full scale-75"
       />
     </motion.div>
   );

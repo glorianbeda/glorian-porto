@@ -52,6 +52,14 @@ const FloatingBadge = ({ icon: Icon, label, delay, positionClasses, className, i
 
 const Hero = () => {
   const { scrollY } = useScroll();
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const xText = useTransform(scrollY, [0, 500], [0, -400]);
   const xImage = useTransform(scrollY, [0, 500], [0, 400]);
@@ -70,7 +78,7 @@ const Hero = () => {
   const PROFILE_PHOTO = myProfilePhoto; // You can replace this with your actual hosted link
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-[#050810]">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden md:overflow-visible bg-slate-50 dark:bg-[#050810]">
 
       <div className="absolute inset-0 bg-dots opacity-[0.4] dark:opacity-[0.15] pointer-events-none" />
 
@@ -82,7 +90,7 @@ const Hero = () => {
           opacity: [0.1, 0.2, 0.15, 0.1]
         }}
         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-primary-500 rounded-full blur-[60px] pointer-events-none"
+        className="absolute top-1/4 left-1/4 w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-primary-500 rounded-full blur-[60px] pointer-events-none"
       />
       <motion.div
         animate={{
@@ -92,7 +100,7 @@ const Hero = () => {
           opacity: [0.05, 0.15, 0.1, 0.05]
         }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-1/4 right-1/4 w-[700px] h-[700px] bg-purple-500 rounded-full blur-[60px] pointer-events-none"
+        className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] md:w-[700px] md:h-[700px] bg-purple-500 rounded-full blur-[60px] pointer-events-none"
       />
 
       <div className="max-w-7xl w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10 py-20 lg:py-0">
@@ -184,19 +192,19 @@ const Hero = () => {
 
             <FloatingBadge
               icon={Figma} label="UI/UX DESIGN" delay={0.2}
-              positionClasses="-top-4 -left-16" className="bg-white/80 dark:bg-slate-900/80"
+              positionClasses="-top-3 -left-3 md:-top-4 md:-left-16" className="bg-white/80 dark:bg-slate-900/80"
             />
             <FloatingBadge
               isLinux label="LINUX SYSTEM" delay={0.4}
-              positionClasses="top-24 -right-24" className="bg-white/80 dark:bg-slate-900/80"
+              positionClasses="-top-3 -right-3 md:top-24 md:-right-24" className="bg-white/80 dark:bg-slate-900/80"
             />
             <FloatingBadge
               icon={Globe} label="WEB DEVELOPMENT" delay={0.6}
-              positionClasses="bottom-20 -left-28" className="bg-white/80 dark:bg-slate-900/80"
+              positionClasses="-bottom-3 -left-3 md:bottom-20 md:-left-28" className="bg-white/80 dark:bg-slate-900/80"
             />
             <FloatingBadge
               icon={Smartphone} label="MOBILE" delay={0.8}
-              positionClasses="-bottom-8 right-0" className="bg-white/80 dark:bg-slate-900/80"
+              positionClasses="-bottom-3 -right-3 md:-bottom-8 md:right-0" className="bg-white/80 dark:bg-slate-900/80"
             />
           </div>
         </motion.div>

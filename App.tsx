@@ -79,14 +79,14 @@ function App() {
         <div ref={container} className="relative h-[700vh] z-20">
           <motion.div
             style={{ scale: tunnelScale, opacity: tunnelOpacity }}
-            className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden will-change-transform"
+            className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden will-change-transform transform-gpu"
           >
-            <div className="w-[120vw] h-[120vh] md:w-[200vw] md:h-[200vh] border-[20px] md:border-[40px] border-primary-500/5 dark:border-primary-500/10 rounded-full blur-md md:blur-xl" />
-            <div className="absolute w-[90vw] h-[90vh] md:w-[150vw] md:h-[150vh] border-[10px] md:border-[20px] border-purple-500/5 dark:border-purple-500/10 rounded-full blur-sm md:blur-lg" />
+            <div className="w-[200vw] h-[200vh] border-[20px] md:border-[40px] border-primary-500/5 dark:border-primary-500/10 rounded-full blur-xl" />
+            <div className="absolute w-[150vw] h-[150vh] border-[10px] md:border-[20px] border-purple-500/5 dark:border-purple-500/10 rounded-full blur-lg" />
             <div className="absolute inset-0 bg-dots opacity-20" />
           </motion.div>
 
-          <div className="sticky top-0 h-screen w-full flex items-center justify-center perspective-[2000px] overflow-hidden">
+          <div className="sticky top-16 h-[calc(100vh-4rem)] w-full flex items-center justify-center perspective-[2000px] overflow-hidden">
 
             <Card
               i={0}
