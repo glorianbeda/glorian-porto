@@ -83,24 +83,24 @@ const Hero = () => {
       <div className="absolute inset-0 bg-dots opacity-[0.4] dark:opacity-[0.15] pointer-events-none" />
 
       <motion.div
-        animate={{
+        animate={isMobile ? undefined : {
           x: [0, 50, -30, 0],
           y: [0, -80, 40, 0],
           scale: [1, 1.2, 0.9, 1],
           opacity: [0.1, 0.2, 0.15, 0.1]
         }}
         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        className="absolute top-1/4 left-1/4 w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-primary-500 rounded-full blur-[60px] pointer-events-none"
+        className="absolute top-1/4 left-1/4 w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-primary-500 rounded-full blur-[60px] opacity-10 md:opacity-[unset] pointer-events-none"
       />
       <motion.div
-        animate={{
+        animate={isMobile ? undefined : {
           x: [0, -60, 40, 0],
           y: [0, 100, -50, 0],
           scale: [1, 1.1, 1.2, 1],
           opacity: [0.05, 0.15, 0.1, 0.05]
         }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] md:w-[700px] md:h-[700px] bg-purple-500 rounded-full blur-[60px] pointer-events-none"
+        className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] md:w-[700px] md:h-[700px] bg-purple-500 rounded-full blur-[60px] opacity-5 md:opacity-[unset] pointer-events-none"
       />
 
       <div className="max-w-7xl w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10 py-20 lg:py-0">
@@ -160,19 +160,19 @@ const Hero = () => {
           <div className="relative w-72 h-72 md:w-[480px] md:h-[480px] flex items-center justify-center">
 
             <motion.div
-              animate={{ rotate: 360 }}
+              animate={isMobile ? undefined : { rotate: 360 }}
               transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
               className="absolute inset-0 -m-20 border-[1.5px] border-dashed border-primary-500/30 dark:border-primary-500/20 rounded-full pointer-events-none"
             />
 
             <motion.div
-              animate={{ rotate: -360 }}
+              animate={isMobile ? undefined : { rotate: -360 }}
               transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
               className="absolute inset-0 -m-10 border-[1px] border-slate-300 dark:border-slate-800 rounded-full pointer-events-none"
             />
 
             <motion.div
-              animate={{ scale: [1, 1.05, 1], opacity: [0.1, 0.2, 0.1] }}
+              animate={isMobile ? undefined : { scale: [1, 1.05, 1], opacity: [0.1, 0.2, 0.1] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               className="absolute inset-0 bg-primary-500/20 dark:bg-primary-500/10 rounded-[4rem] blur-2xl pointer-events-none"
             />
