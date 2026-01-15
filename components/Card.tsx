@@ -82,16 +82,28 @@ const Card: React.FC<CardProps> = ({
         setScrollableDistance(distance);
       }
     };
+
+    // Initial calculation
     calculateScroll();
+
+    // Recalculate after a short delay to ensure layout is stable
+    const timeoutId = setTimeout(calculateScroll, 100);
+    // Recalculate again after fonts/images load
+    const loadTimeoutId = setTimeout(calculateScroll, 500);
 
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
 
     window.addEventListener('resize', calculateScroll);
     window.addEventListener('resize', checkMobile);
+    window.addEventListener('load', calculateScroll);
+
     return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(loadTimeoutId);
       window.removeEventListener('resize', calculateScroll);
       window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('load', calculateScroll);
     };
   }, [children]);
 
