@@ -70,8 +70,7 @@ jobs:
             # Stop existing containers
             docker compose down --remove-orphans || true
 
-            # Free disk space
-            docker builder prune -a -f || true
+            # Free disk space (only unused images before build)
             docker image prune -a -f || true
 
             # Auto-detect DomCloud Nginx proxy port (FIXED)
