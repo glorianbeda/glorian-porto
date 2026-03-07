@@ -73,9 +73,9 @@ jobs:
             # Free disk space
             docker image prune -f || true
 
-            # Auto-detect DomCloud Nginx proxy port from active site conf
-            # Using grep to find the port number dynamically
-            NGINX_PORT=$(grep -oP 'proxy_pass http://127\.0\.0\.1:\K[0-9]+' /etc/nginx/conf.d/*.conf 2>/dev/null | head -n 1 || echo "8080")
+            # Auto-detect DomCloud Nginx proxy port (FIXED)
+            # Tambahkan -h agar grep tidak mencetak nama file
+            NGINX_PORT=$(grep -hoP 'proxy_pass http://127\.0\.0\.1:\K[0-9]+' /etc/nginx/conf.d/*.conf 2>/dev/null | head -n 1 || echo "8080")
             echo "Detected Nginx proxy port: $NGINX_PORT"
 
             # Build and start with detected port
@@ -88,7 +88,7 @@ jobs:
             # Check status
             docker compose ps
             docker compose logs --tail=20
-
+            
       - name: Deploy summary
         run: |
           echo "### 🚀 Deploy Complete" >> $GITHUB_STEP_SUMMARY
