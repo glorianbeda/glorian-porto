@@ -71,7 +71,8 @@ jobs:
             docker compose down --remove-orphans || true
 
             # Free disk space
-            docker image prune -f || true
+            docker builder prune -a -f || true
+            docker image prune -a -f || true
 
             # Auto-detect DomCloud Nginx proxy port (FIXED)
             # Tambahkan -h agar grep tidak mencetak nama file
@@ -88,6 +89,11 @@ jobs:
             # Check status
             docker compose ps
             docker compose logs --tail=20
+
+            # Clean cache and unused images AFTER build to keep disk empty
+            echo "🧹 Cleaning up build cache and unused images..."
+            docker builder prune -a -f || true
+            docker image prune -a -f || true
             
       - name: Deploy summary
         run: |
