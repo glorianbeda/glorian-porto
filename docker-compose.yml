@@ -1,0 +1,11 @@
+services:
+  # ============================================
+  # Portfolio Frontend - Nginx serving Vite static files
+  # ============================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:80"
