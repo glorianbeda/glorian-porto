@@ -3,7 +3,10 @@ services:
   # Portfolio Frontend - Nginx serving Vite static files
   # ============================================
   app:
-    image: porto-app:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
     restart: unless-stopped
     ports:
       - "${PORT:-8080}:80"

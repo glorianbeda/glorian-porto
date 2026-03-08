@@ -8,10 +8,10 @@ on:
 
 jobs:
   # ============================================
-  # Single Job: Build image on GH Actions, deploy to server
+  # Job 1: Build & Test
   # ============================================
-  build-deploy:
-    name: 🔨 Build & 🚀 Deploy
+  build-test:
+    name: 🔨 Build & Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -29,13 +29,23 @@ jobs:
       - name: Build frontend
         run: yarn build
 
-      - name: Build Docker image locally
-        run: docker build -t porto-app:latest .
+      - name: Build check summary
+        run: |
+          echo "### ✅ Build Successful" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend: Built successfully" >> $GITHUB_STEP_SUMMARY
 
-      - name: Save Docker image to tar
-        run: docker save porto-app:latest | gzip > porto-app.tar.gz
+  # ============================================
+  # Job 2: Deploy (only if build succeeds)
+  # ============================================
+  deploy:
+    name: 🚀 Deploy to DomCloud
+    runs-on: ubuntu-latest
+    needs: build-test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Copy image + compose to server
+      - name: Copy files via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -43,7 +53,7 @@ jobs:
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          source: "porto-app.tar.gz,docker-compose.yml"
+          source: ".,!**/.git/**,!**/.github/**,!**/node_modules/**"
           target: "~/public_html"
 
       - name: Deploy via SSH
@@ -60,25 +70,28 @@ jobs:
             # Stop existing containers
             docker compose down --remove-orphans || true
 
-            # Clean up old images
-            docker system prune -a -f --volumes || true
-
-            # Load pre-built image (no pull needed!)
-            gunzip -c porto-app.tar.gz | docker load
-            rm porto-app.tar.gz
+            # Free disk space (only unused images before build)
+            docker image prune -a -f || true
 
             # Auto-detect DomCloud Nginx proxy port
             NGINX_PORT=$(grep -hoP 'proxy_pass http://127\.0\.0\.1:\K[0-9]+' /etc/nginx/conf.d/*.conf 2>/dev/null | head -n 1 || echo "8080")
             echo "Detected Nginx proxy port: $NGINX_PORT"
 
-            # Start container
-            PORT=$NGINX_PORT docker compose up -d
+            # Build and start with detected port
+            PORT=$NGINX_PORT docker compose up -d --build
 
-            # Verify
+            # Wait and verify
             echo "⏳ Waiting for services..."
-            sleep 10
+            sleep 15
+
+            # Check status
             docker compose ps
-            docker compose logs --tail=10
+            docker compose logs --tail=20
+
+            # Clean cache and unused images AFTER build to keep disk empty
+            echo "🧹 Cleaning up build cache and unused images..."
+            docker builder prune -a -f || true
+            docker image prune -a -f || true
 
       - name: Deploy summary
         run: |
