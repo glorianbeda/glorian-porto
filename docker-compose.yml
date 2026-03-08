@@ -3,10 +3,10 @@ services:
   # Portfolio Frontend - Nginx serving Vite static files
   # ============================================
   app:
-    image: nginx:alpine
-    volumes:
-      - ./dist:/usr/share/nginx/html:ro
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
     restart: unless-stopped
     ports:
       - "${PORT:-8080}:80"
