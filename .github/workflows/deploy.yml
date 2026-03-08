@@ -86,8 +86,19 @@ jobs:
             # Free disk space (system wide to clear bad layers)
             docker system prune -a -f --volumes || true
 
-            # Auto-detect DomCloud Nginx proxy port (FIXED)
-            # Tambahkan -h agar grep tidak mencetak nama file
+            # Pull nginx:alpine with retry (daemon may crash on first attempt)
+            for i in 1 2 3; do
+              echo "🔄 Pull attempt $i..."
+              if docker pull nginx:alpine; then
+                echo "✅ Image pulled successfully"
+                break
+              fi
+              echo "⚠️ Pull failed, restarting Docker daemon..."
+              systemctl --user restart docker || true
+              sleep 5
+            done
+
+            # Auto-detect DomCloud Nginx proxy port
             NGINX_PORT=$(grep -hoP 'proxy_pass http://127\.0\.0\.1:\K[0-9]+' /etc/nginx/conf.d/*.conf 2>/dev/null | head -n 1 || echo "8080")
             echo "Detected Nginx proxy port: $NGINX_PORT"
 
