@@ -83,8 +83,8 @@ jobs:
             # Stop existing containers
             docker compose down --remove-orphans || true
 
-            # Free disk space
-            docker image prune -a -f || true
+            # Free disk space (system wide to clear bad layers)
+            docker system prune -a -f --volumes || true
 
             # Auto-detect DomCloud Nginx proxy port (FIXED)
             # Tambahkan -h agar grep tidak mencetak nama file
