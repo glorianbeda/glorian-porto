@@ -66,7 +66,7 @@ jobs:
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          source: "dist/,nginx/,docker-compose.yml,Dockerfile"
+          source: "dist,nginx,docker-compose.yml,Dockerfile"
           target: "~/public_html"
 
       - name: Deploy via SSH
