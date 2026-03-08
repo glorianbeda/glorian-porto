@@ -58,10 +58,7 @@ jobs:
           name: dist
           path: dist/
 
-      - name: Create deployment bundle
-        run: tar -czf deploy.tar.gz dist/ nginx/ docker-compose.yml Dockerfile .dockerignore
-
-      - name: Copy bundle via SCP
+      - name: Copy files via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -69,7 +66,7 @@ jobs:
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          source: "deploy.tar.gz"
+          source: ".,!**/.git/**,!**/.github/**,!**/node_modules/**"
           target: "~/public_html"
 
       - name: Deploy via SSH
@@ -83,28 +80,10 @@ jobs:
           script: |
             cd ~/public_html
 
-            # Extract bundle
-            tar -xzf deploy.tar.gz
-            rm deploy.tar.gz
-
-            # Stop existing containers
-            docker compose down --remove-orphans || true
-
-            # Free disk space (only unused images before build)
-            docker image prune -a -f || true
-
             # Auto-detect DomCloud Nginx proxy port (FIXED)
             # Tambahkan -h agar grep tidak mencetak nama file
             NGINX_PORT=$(grep -hoP 'proxy_pass http://127\.0\.0\.1:\K[0-9]+' /etc/nginx/conf.d/*.conf 2>/dev/null | head -n 1 || echo "8080")
             echo "Detected Nginx proxy port: $NGINX_PORT"
-
-            # Ensure Docker daemon is running
-            export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
-            if ! docker info >/dev/null 2>&1; then
-              echo "Docker daemon is down. Starting rootless Docker..."
-              dockerd-rootless.sh --experimental &
-              sleep 5
-            fi
 
             # Start with detected port
             PORT=$NGINX_PORT docker compose up -d
