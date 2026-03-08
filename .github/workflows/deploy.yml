@@ -64,14 +64,12 @@ jobs:
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT || 22 }}
+          command_timeout: 15m
           script: |
             cd ~/public_html
 
-            # Stop existing containers
+            # Stop existing containers (no prune - it crashes the daemon)
             docker compose down --remove-orphans || true
-
-            # Free disk space (only unused images before build)
-            docker image prune -a -f || true
 
             # Auto-detect DomCloud Nginx proxy port
             NGINX_PORT=$(grep -hoP 'proxy_pass http://127\.0\.0\.1:\K[0-9]+' /etc/nginx/conf.d/*.conf 2>/dev/null | head -n 1 || echo "8080")
@@ -80,18 +78,11 @@ jobs:
             # Build and start with detected port
             PORT=$NGINX_PORT docker compose up -d --build
 
-            # Wait and verify
+            # Verify
             echo "⏳ Waiting for services..."
             sleep 15
-
-            # Check status
             docker compose ps
             docker compose logs --tail=20
-
-            # Clean cache and unused images AFTER build to keep disk empty
-            echo "🧹 Cleaning up build cache and unused images..."
-            docker builder prune -a -f || true
-            docker image prune -a -f || true
 
       - name: Deploy summary
         run: |
