@@ -58,7 +58,10 @@ jobs:
           name: dist
           path: dist/
 
-      - name: Copy files via SCP
+      - name: Create deployment bundle
+        run: tar -czf deploy.tar.gz dist/ nginx/ docker-compose.yml Dockerfile .dockerignore
+
+      - name: Copy bundle via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -66,7 +69,7 @@ jobs:
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          source: "dist,nginx,docker-compose.yml,Dockerfile"
+          source: "deploy.tar.gz"
           target: "~/public_html"
 
       - name: Deploy via SSH
@@ -79,6 +82,10 @@ jobs:
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
             cd ~/public_html
+
+            # Extract bundle
+            tar -xzf deploy.tar.gz
+            rm deploy.tar.gz
 
             # Stop existing containers
             docker compose down --remove-orphans || true
