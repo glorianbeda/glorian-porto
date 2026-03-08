@@ -8,7 +8,7 @@ on:
 
 jobs:
   # ============================================
-  # Job 1: Build & Deploy
+  # Single Job: Build image on GH Actions, deploy to server
   # ============================================
   build-deploy:
     name: 🔨 Build & 🚀 Deploy
@@ -29,12 +29,13 @@ jobs:
       - name: Build frontend
         run: yarn build
 
-      - name: Build check summary
-        run: |
-          echo "### ✅ Build Successful" >> $GITHUB_STEP_SUMMARY
-          echo "- Frontend: Built successfully" >> $GITHUB_STEP_SUMMARY
+      - name: Build Docker image locally
+        run: docker build -t porto-app:latest .
 
-      - name: Deploy dist to server via SCP
+      - name: Save Docker image to tar
+        run: docker save porto-app:latest | gzip > porto-app.tar.gz
+
+      - name: Copy image + compose to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -42,9 +43,42 @@ jobs:
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          source: "dist/*"
+          source: "porto-app.tar.gz,docker-compose.yml"
           target: "~/public_html"
-          strip_components: 1
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            cd ~/public_html
+
+            # Stop existing containers
+            docker compose down --remove-orphans || true
+
+            # Clean up old images
+            docker system prune -a -f --volumes || true
+
+            # Load pre-built image (no pull needed!)
+            gunzip -c porto-app.tar.gz | docker load
+            rm porto-app.tar.gz
+
+            # Auto-detect DomCloud Nginx proxy port
+            NGINX_PORT=$(grep -hoP 'proxy_pass http://127\.0\.0\.1:\K[0-9]+' /etc/nginx/conf.d/*.conf 2>/dev/null | head -n 1 || echo "8080")
+            echo "Detected Nginx proxy port: $NGINX_PORT"
+
+            # Start container
+            PORT=$NGINX_PORT docker compose up -d
+
+            # Verify
+            echo "⏳ Waiting for services..."
+            sleep 10
+            docker compose ps
+            docker compose logs --tail=10
 
       - name: Deploy summary
         run: |
