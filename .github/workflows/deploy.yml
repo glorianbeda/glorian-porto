@@ -98,6 +98,10 @@ jobs:
             NGINX_PORT=$(grep -hoP 'proxy_pass http://127\.0\.0\.1:\K[0-9]+' /etc/nginx/conf.d/*.conf 2>/dev/null | head -n 1 || echo "8080")
             echo "Detected Nginx proxy port: $NGINX_PORT"
 
+            # Restart Docker Daemon to clear stale sockets and memory leaks if it crashed
+            systemctl --user restart docker || true
+            sleep 3
+
             # Start with detected port
             PORT=$NGINX_PORT docker compose up -d
 
